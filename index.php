@@ -29,11 +29,16 @@ $ips = $blockInfo = array();
 
 /* Main Controller-like thing */
 if (isset($_POST['cidr'])) { 				  // If user submits data
-
 	$inputFile = $_POST['cidr'];
-	$ips 	   = readInputFile($inputFile);   // Store IP Addresses from input file
-	$blockInfo = loopThroughIps($ips);  	  // For each IP, do rest request
-	writeNewFile($blockInfo);				  // Write a new file with data returned from requests
+	if(pathinfo($inputFile, PATHINFO_EXTENSION)=='txt'){
+		$ips 	   = readInputFile($inputFile);   // Store IP Addresses from input file
+		$blockInfo = loopThroughIps($ips);  	  // For each IP, do rest request
+		writeNewFile($blockInfo);				  // Write a new file with data returned from requests
+	}
+	else {
+		echo 'Invalid file type, please use .txt';
+	}
+	
 	
 }
 
@@ -154,5 +159,7 @@ function writeToScreen($output){
 	echo("<br/>Registration Date: $output[registration_date]");
 	echo("<br/>Last Updated: $output[last_update_date]");
 	echo("<br/><br/>Output: ");
+	
+}
 	
 ?>
