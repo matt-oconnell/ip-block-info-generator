@@ -1,8 +1,9 @@
 <html>
 	<body>
-		<form method="post" action="">
-			<label for="cidr">Drag file here -></label>
-			<input type="file" name="cidr" id="file">
+		<form method="post" action="" enctype="multipart/form-data">
+		<!-- Without 'multipart/form-data' files cannot be sent through POST -->
+			<label for="file">Drag file here -></label>
+			<input type="file" name="file" id="file">
 			<input type="submit">
 		</form>
 	</body>
@@ -28,24 +29,25 @@ $inputFile;
 $ips = $blockInfo = array();
 
 /* Main Controller-like thing */
-if (isset($_POST['cidr'])) { 				  // If user submits data
-	$inputFile = $_POST['cidr'];
-	if(pathinfo($inputFile, PATHINFO_EXTENSION)=='txt'){
+if (isset($_FILES['file'])) { 
+
+	$inputFile = $_FILES['file'];
+
+	if(pathinfo($inputFile['name'], PATHINFO_EXTENSION)=='txt'){
 		$ips 	   = readInputFile($inputFile);   // Store IP Addresses from input file
 		$blockInfo = loopThroughIps($ips);  	  // For each IP, do rest request
 		writeNewFile($blockInfo);				  // Write a new file with data returned from requests
 	}
 	else {
-		echo 'Invalid file type, please use .txt';
+		echo 'Invalid file type. Please use .txt';
 	}
-	
-	
 }
+
 
 function readInputFile($inputFile){
 
-	$handle = fopen($inputFile, "r");
-	
+	$handle = fopen($inputFile["tmp_name"], "r");
+	var_dump($handle);
 	if ($handle) {
 		$i = 0;
 	    while (($line = fgets($handle)) !== false) { // Loop through each line
@@ -63,8 +65,8 @@ function readInputFile($inputFile){
 function loopThroughIps($ips){
 
 	foreach ($ips as $key=>$ip) {
-		$blockInfo[$key] = restRequest($ip); // Fill in blockInfo array with data returned from request 
-		usleep(1000); // Change this value as needed
+		$blockInfo[$key] = trim(restRequest($ip)); // Fill in blockInfo array with data returned from request 
+		usleep(100); // Change this value as needed
 	}
 	return $blockInfo;
 	
